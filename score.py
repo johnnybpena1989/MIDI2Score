@@ -1,20 +1,23 @@
 import music21
 
-def transcribe_midi(file_path):
-    # Load the MIDI file
-    midi = music21.converter.parse(file_path)
-    
-    # Extract individual tracks
-    tracks = music21.midi.translate.midiFileToStream(midi)
-    for i, track in enumerate(tracks):
-        # Extract notes and chords from track
-        notes_chords = track.flat.notes
-        # Score the notes based on detected instruments
-        score = music21.stream.Score()
-        score.insert(0, music21.instrument.fromString(track.getInstrument().midiProgram))
-        score.append(notes_chords)
-        # Print the sheet music
-        score.show()
-
-# Test the function with a sample MIDI file
-transcribe_midi('sample.mid')
+def transcribe():
+    filepath = file_entry.get()
+    if not filepath:
+        messagebox.showerror("Error", "Please select a file to transcribe")
+        return
+    if not os.path.isfile(filepath):
+        messagebox.showerror("Error", "Invalid file path")
+        return
+    output_dir = output_entry.get()
+    if not output_dir:
+        messagebox.showerror("Error", "Please specify an output directory")
+        return
+    if not os.path.isdir(output_dir):
+        messagebox.showerror("Error", "Invalid output directory")
+        return
+    from music21 import *
+    s = converter.parse(filepath)
+    for part in s.parts:
+        fp = os.path.join(output_dir, f"{part.id}.pdf")
+        part.show(fp=fp)
+    messagebox.showinfo("Success", "File transcribed and exported successfully")
